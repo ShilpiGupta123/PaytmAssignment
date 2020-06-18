@@ -3,20 +3,19 @@ package movies;
 
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
-import io.restassured.path.json.JsonPath;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.matcher.RestAssuredMatchers.*;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -60,8 +59,21 @@ public class UpcommingMoviesTests {
 		 ArrayList<String> moviePosterUrl =  response.then().extract().path("upcomingMovieData.paytmMovieCode") ;
 		 Set duplicates = findDuplicates(moviePosterUrl);
 		 assertEquals(true, duplicates.isEmpty());
+		 
+		 writeToExel(response);
 	}
 	
+	public static void writeToExel(Response response) {
+		 String file = "/Users/shivam/Projects/java/PaytmMoviesTests/" + "Movies.xls";
+		 List<Map<String, String>> movies = response.then().extract().response().jsonPath().getList("upcomingMovieData");
+		 
+		 try {
+			WriteToExcelFile.writeMoviesNamWithIsContentAvailable0OnExel(file, movies);
+		 } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		 }
+	}
 	
 	public static Set<String> findDuplicates(List<String> listContainingDuplicates) {
 		 
